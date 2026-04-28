@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Komunik ACM — Sistema Estratégico | Café Empresarial</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --navy:#0E1C36; --navy2:#162440; --navy3:#1D2E50;
+  --copper:#C8823A; --copper2:#D9963F; --copper-light:#F5E6CC;
+  --cream:#F9F6F0; --white:#FFFFFF;
+  --g1:#2D3748; --g2:#4A5568; --g3:#718096; --g4:#A0AEC0;
+  --g5:#CBD5E0; --g6:#E2E8F0; --g7:#F7FAFC;
+  --a1:#1A5FA8; --a1l:#EBF4FF;
+  --a2:#0A7E5A; --a2l:#E6FAF2;
+  --a3:#9C5A14; --a3l:#FFF4E6;
+  --a4:#7B1FA2; --a4l:#F5E6FF;
+  --red:#C0392B; --redl:#FFF0EE;
+  --amber:#B7600A; --amberl:#FFF8ED;
+  --green:#0A7E5A; --greenl:#E6FAF2;
+  --r6:6px; --r10:10px; --r14:14px;
+  --shadow-sm:0 1px 4px rgba(14,28,54,.06);
+  --shadow:0 2px 12px rgba(14,28,54,.08);
+  --shadow-lg:0 8px 32px rgba(14,28,54,.12);
+  --shadow-xl:0 20px 60px rgba(14,28,54,.18);
+  --transition:.18s ease;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--g1);font-size:14px}
+
+/* ── LOGIN ── */
+#login-screen{
+  position:fixed;inset:0;background:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;
+}
+.login-card{
+  width:420px;background:var(--white);border-radius:20px;
+  padding:44px 40px;box-shadow:var(--shadow-xl);
+  animation:fadeUp .5s ease both;
+}
+.login-logo{
+  font-family:'Fraunces',serif;font-size:13px;font-weight:600;
+  color:var(--copper);letter-spacing:.05em;margin-bottom:4px;text-transform:uppercase;
+}
+.login-title{
+  font-family:'Fraunces',serif;font-size:28px;font-weight:700;
+  color:var(--navy);line-height:1.2;margin-bottom:6px;
+}
+.login-sub{font-size:13px;color:var(--g3);margin-bottom:32px;}
+.login-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--g3);margin-bottom:6px;display:block}
+.login-input{
+  width:100%;padding:12px 14px;border:1.5px solid var(--g6);border-radius:var(--r10);
+  font-family:inherit;font-size:14px;color:var(--g1);background:var(--g7);
+  outline:none;transition:border var(--transition);margin-bottom:16px;
+}
+.login-input:focus{border-color:var(--copper);background:var(--white);box-shadow:0 0 0 3px rgba(200,130,58,.1)}
+.login-btn{
+  width:100%;padding:14px;background:var(--navy);color:var(--white);
+  border:none;border-radius:var(--r10);font-family:inherit;font-size:14px;
+  font-weight:600;cursor:pointer;transition:background var(--transition);margin-top:4px;
+}
+.login-btn:hover{background:var(--navy3)}
+.login-error{font-size:12px;color:var(--red);margin-top:8px;text-align:center;min-height:18px}
+.login-roles{display:flex;gap:8px;margin-bottom:24px}
+.role-btn{
+  flex:1;padding:9px 8px;border-radius:var(--r6);border:1.5px solid var(--g6);
+  background:var(--g7);font-family:inherit;font-size:12px;font-weight:500;
+  color:var(--g3);cursor:pointer;transition:all var(--transition);text-align:center;
+}
+.role-btn.active{border-color:var(--copper);background:var(--copper-light);color:var(--navy)}
+.login-hint{font-size:11px;color:var(--g4);text-align:center;margin-top:16px;line-height:1.5}
+
+/* ── APP SHELL ── */
+#app{display:none;height:100vh;flex-direction:column}
+#app.visible{display:flex}
+
+/* TOPBAR */
+.topbar{
+  height:52px;background:var(--white);border-bottom:1px solid var(--g6);
+  display:flex;align-items:center;padding:0 20px;gap:16px;
+  box-shadow:var(--shadow-sm);z-index:100;flex-shrink:0;
+}
+.topbar-logo{font-family:'Fraunces',serif;font-size:12px;font-weight:600;color:var(--copper);white-space:nowrap}
+.topbar-sep{width:1px;height:24px;background:var(--g6)}
+.topbar-client{font-size:13px;font-weight:500;color:var(--navy)}
+.topbar-phase{
+  margin-left:auto;font-size:11px;font-weight:600;padding:4px 12px;
+  border-radius:20px;background:rgba(200,130,58,.1);color:var(--copper);
+  border:1px solid rgba(200,130,58,.2);white-space:nowrap;
+}
+.topbar-user{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 12px;border-radius:20px;background:var(--g7);
+  border:1px solid var(--g6);cursor:pointer;font-size:12px;font-weight:500;
+}
+.user-dot{width:8px;height:8px;border-radius:50%}
+.role-tag{font-size:10px;color:var(--g3)}
+.logout-btn{
+  padding:5px 12px;border-radius:20px;border:1px solid var(--g6);
+  background:none;font-family:inherit;font-size:12px;color:var(--g3);
+  cursor:pointer;transition:all var(--transition);
+}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* BODY */
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{
+  width:210px;background:var(--navy2);flex-shrink:0;
+  display:flex;flex-direction:column;overflow-y:auto;border-right:1px solid rgba(255,255,255,.05);
+}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+.nav-sec{
+  padding:18px 14px 6px;font-size:9px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.25);
+}
+.nav-item{
+  display:flex;align-items:center;gap:9px;padding:9px 14px;
+  color:rgba(255,255,255,.5);font-size:12.5px;cursor:pointer;
+  transition:all var(--transition);border-left:2px solid transparent;
+  border-radius:0 6px 6px 0;margin-right:6px;
+}
+.nav-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.05)}
+.nav-item.active{color:var(--copper);border-left-color:var(--copper);background:rgba(200,130,58,.08)}
+.nav-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0}
+.sidebar-footer{
+  margin-top:auto;padding:14px;border-top:1px solid rgba(255,255,255,.06);
+  font-size:10px;color:rgba(255,255,255,.25);line-height:1.6;
+}
+.sidebar-footer strong{color:rgba(255,255,255,.5);font-size:11px}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;background:var(--cream)}
+.main::-webkit-scrollbar{width:5px}
+.main::-webkit-scrollbar-thumb{background:var(--g5);border-radius:3px}
+
+/* CONTENT */
+.content{padding:24px;max-width:1300px}
+.view{display:none;animation:fadeUp .25s ease both}
+.view.active{display:block}
+
+/* SECTION HEADER */
+.sec-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px}
+.sec-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--navy);line-height:1.2}
+.sec-sub{font-size:12px;color:var(--g3);margin-top:3px}
+.btn-primary{
+  padding:9px 18px;background:var(--navy);color:var(--white);border:none;
+  border-radius:var(--r6);font-family:inherit;font-size:12px;font-weight:600;
+  cursor:pointer;transition:background var(--transition);white-space:nowrap;flex-shrink:0;
+}
+.btn-primary:hover{background:var(--navy3)}
+.btn-secondary{
+  padding:8px 16px;background:var(--white);color:var(--g1);
+  border:1.5px solid var(--g6);border-radius:var(--r6);font-family:inherit;
+  font-size:12px;font-weight:500;cursor:pointer;transition:all var(--transition);white-space:nowrap;
+}
+.btn-secondary:hover{border-color:var(--g4);background:var(--g7)}
+.btn-copper{
+  padding:9px 18px;background:var(--copper);color:var(--white);border:none;
+  border-radius:var(--r6);font-family:inherit;font-size:12px;font-weight:600;
+  cursor:pointer;transition:background var(--transition);white-space:nowrap;
+}
+.btn-copper:hover{background:var(--copper2)}
+
+/* CARDS */
+.card{background:var(--white);border-radius:var(--r10);border:1px solid var(--g6);box-shadow:var(--shadow)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--g6);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--g3)}
+.card-body{padding:18px}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.g12{display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-bottom:14px}
+.mb14{margin-bottom:14px}
+
+/* KPI CARD */
+.kpi{
+  background:var(--white);border-radius:var(--r10);border:1px solid var(--g6);
+  padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.kpi-accent{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:4px 0 0 4px}
+.kpi-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--g3);margin-bottom:5px}
+.kpi-value{font-size:26px;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--g3)}
+.kpi-sub.up{color:var(--green)}
+.kpi-sub.down{color:var(--red)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.b-high{background:var(--redl);color:var(--red)}
+.b-med{background:var(--amberl);color:var(--amber)}
+.b-low{background:var(--greenl);color:var(--green)}
+.b-done{background:var(--greenl);color:var(--green)}
+.b-prog{background:var(--a1l);color:var(--a1)}
+.b-pend{background:var(--g7);color:var(--g3)}
+.b-crit{background:var(--redl);color:var(--red)}
+
+/* AREA CHIPS */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.chip-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.c-a1{background:var(--a1l);color:var(--a1)}.cd-a1{background:var(--a1)}
+.c-a2{background:var(--a2l);color:var(--a2)}.cd-a2{background:var(--a2)}
+.c-a3{background:var(--a3l);color:var(--a3)}.cd-a3{background:var(--a3)}
+.c-a4{background:var(--a4l);color:var(--a4)}.cd-a4{background:var(--a4)}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:12px}
+.prog-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.prog-label{font-size:12px;font-weight:500}
+.prog-pct{font-size:11px;color:var(--g3)}
+.prog-bar{height:5px;background:var(--g6);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .5s}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--g3);padding:9px 12px;text-align:left;border-bottom:1.5px solid var(--g6)}
+.tbl td{padding:10px 12px;font-size:13px;border-bottom:1px solid var(--g6);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--g7)}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+.fl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--g3)}
+.fi{padding:9px 12px;border:1.5px solid var(--g6);border-radius:var(--r6);font-family:inherit;font-size:13px;color:var(--g1);background:var(--g7);outline:none;transition:border var(--transition);width:100%}
+.fi:focus{border-color:var(--copper);background:var(--white);box-shadow:0 0 0 3px rgba(200,130,58,.08)}
+.fi-sm{padding:5px 8px;border:1.5px solid var(--g6);border-radius:5px;font-family:inherit;font-size:12px;color:var(--g1);background:var(--g7);outline:none;width:100%;transition:border var(--transition)}
+.fi-sm:focus{border-color:var(--copper);background:var(--white)}
+.fi-ta{min-height:80px;resize:vertical}
+
+/* ACTION ROW */
+.act-row{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:8px;border:1px solid var(--g6);background:var(--g7);cursor:pointer;transition:all var(--transition);margin-bottom:6px}
+.act-row:hover{border-color:var(--g5);background:var(--white)}
+.act-chk{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--g5);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all var(--transition)}
+.act-chk.done{background:var(--green);border-color:var(--green)}
+.act-chk.done::after{content:'✓';color:#fff;font-size:10px;font-weight:700}
+.act-text{font-size:12.5px;flex:1;line-height:1.4}
+.act-text.done{text-decoration:line-through;color:var(--g4)}
+.act-meta{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;align-items:center}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(10,18,36,.5);backdrop-filter:blur(6px);z-index:500;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-xl);padding:28px;animation:fadeUp .2s ease both}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--navy)}
+.modal-close{width:30px;height:30px;border-radius:50%;background:var(--g7);border:none;cursor:pointer;font-size:16px;color:var(--g3);display:flex;align-items:center;justify-content:center;transition:background var(--transition)}
+.modal-close:hover{background:var(--g6)}
+.modal-ft{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--g6)}
+
+/* TIMELINE */
+.tl{display:flex;flex-direction:column}
+.tl-item{display:flex;gap:12px}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:36px;flex-shrink:0}
+.tl-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;z-index:1}
+.tl-line{flex:1;width:2px;background:var(--g6);margin:2px 0}
+.tl-item:last-child .tl-line{display:none}
+.tl-body{flex:1;padding-bottom:18px}
+.tl-hd{display:flex;align-items:center;justify-content:space-between;padding-top:5px;margin-bottom:6px}
+.tl-name{font-size:13px;font-weight:600;color:var(--navy)}
+.tl-dur{font-size:11px;color:var(--g3)}
+.tl-desc{font-size:12px;color:var(--g2);line-height:1.5;margin-bottom:8px}
+
+/* CHART */
+.chart-wrap{position:relative;height:200px}
+.chart-sm{position:relative;height:160px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:var(--white);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);transform:translateY(60px);opacity:0;transition:all .25s;z-index:9000}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ROLE RESTRICTED */
+.ro-overlay{position:relative}
+.ro-overlay::after{content:'Apenas leitura';position:absolute;inset:0;background:rgba(249,246,240,.6);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--g3);border-radius:4px;pointer-events:none}
+
+/* ACTIVITY FEED */
+.feed-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--g6)}
+.feed-item:last-child{border-bottom:none}
+.feed-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.feed-text{font-size:12px;color:var(--g2);line-height:1.4;flex:1}
+.feed-time{font-size:10px;color:var(--g4);white-space:nowrap}
+
+/* ONLINE INDICATOR */
+.online-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 4px rgba(34,197,94,0)}}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:40px 20px;color:var(--g3)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+.empty-text{font-size:13px;line-height:1.5}
+
+/* COLLAB BADGE */
+.collab-badge{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:20px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);font-size:11px;color:#15803d;font-weight:500}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.stagger>*:nth-child(1){animation-delay:.04s}
+.stagger>*:nth-child(2){animation-delay:.08s}
+.stagger>*:nth-child(3){animation-delay:.12s}
+.stagger>*:nth-child(4){animation-delay:.16s}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--g5);border-radius:3px}
+
+/* READONLY FIELDS */
+.readonly-field{background:var(--g7);padding:9px 12px;border-radius:var(--r6);border:1px solid var(--g6);font-size:13px;color:var(--g2);min-height:38px}
+
+/* NUMBER INPUT ALIGN */
+input[type=number]{text-align:right}
+
+.divider{height:1px;background:var(--g6);margin:16px 0}
+
+/* PHASE HEADER STRIP */
+.phase-strip{
+  border-radius:var(--r10);padding:16px 20px;margin-bottom:16px;
+  display:flex;align-items:flex-start;gap:16px;
+}
+.phase-num{
+  font-family:'Fraunces',serif;font-size:36px;font-weight:700;
+  color:rgba(255,255,255,.2);line-height:1;flex-shrink:0;
+}
+.phase-meta{flex:1}
+.phase-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:3px}
+.phase-name{font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px}
+.phase-desc{font-size:12px;color:rgba(255,255,255,.55);line-height:1.5}
+.phase-dur{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);flex-shrink:0;margin-top:2px;white-space:nowrap}
+
+/* INDICATOR ROW EDIT/VIEW */
+.ind-val-display{font-size:16px;font-weight:700;color:var(--navy)}
+.ind-goal{font-size:11px;color:var(--g3)}
+
+/* SHARED BANNER */
+.shared-banner{
+  background:linear-gradient(135deg,var(--navy),var(--navy3));
+  border-radius:var(--r10);padding:14px 18px;margin-bottom:14px;
+  display:flex;align-items:center;gap:12px;
+}
+.shared-banner-text{font-size:12px;color:rgba(255,255,255,.7);line-height:1.5}
+.shared-banner-text strong{color:var(--white)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">☕ Café Empresarial</div>
+    <div class="login-title">Sistema Estratégico</div>
+    <div class="login-sub">Komunik ACM · Consultoria 90 dias</div>
+
+    <div style="margin-bottom:16px">
+      <div class="fl" style="margin-bottom:8px">Entrar como</div>
+      <div class="login-roles">
+        <button class="role-btn active" onclick="selectRole('consultor')">🧠 Consultor</button>
+        <button class="role-btn" onclick="selectRole('cliente')">🏢 Cliente</button>
+        <button class="role-btn" onclick="selectRole('equipe')">👥 Equipe</button>
+      </div>
+    </div>
+
+    <label class="login-label">Senha de acesso</label>
+    <input class="login-input" type="password" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Entrar no sistema</button>
+    <div class="login-error" id="login-err"></div>
+    <div class="login-hint">
+      Demo: consultor <b>cafe2024</b> · cliente <b>komunik24</b> · equipe <b>equipe24</b>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     APP
+═══════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo">☕ Café Empresarial</div>
+    <div class="topbar-sep"></div>
+    <div class="topbar-client">Komunik ACM</div>
+    <div class="online-dot" title="Sistema online · dados sincronizados"></div>
+    <div class="collab-badge" id="collab-count"><span>●</span> <span id="online-users">1 usuário online</span></div>
+    <div class="topbar-phase" id="topbar-phase">Fase 1 — Diagnóstico</div>
+    <div class="topbar-user" id="topbar-user"></div>
+    <button class="logout-btn" onclick="doLogout()">Sair</button>
+  </div>
+
+  <div class="app-body">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div id="sidebar-nav"></div>
+      <div class="sidebar-footer">
+        <strong>Oséias Nunes</strong><br>
+        Consultor Responsável<br>
+        Café Empresarial · Ipatinga MG
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="content">
+
+        <!-- ─── DASHBOARD ─── -->
+        <div class="view" id="view-dashboard">
+          <div class="sec-hd">
+            <div>
+              <div class="sec-title">Dashboard Executivo</div>
+              <div class="sec-sub" id="dash-greeting">Visão consolidada · Komunik ACM</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div id="last-save-info" style="font-size:11px;color:var(--g4)"></div>
+              <button class="btn-copper" onclick="saveAll()">💾 Salvar tudo</button>
+            </div>
+          </div>
+
+          <div class="g4 stagger" id="kpi-strip"></div>
+
+          <div class="g21">
+            <div class="card">
+              <div class="card-hd"><span class="card-title">Progresso por Fase</span></div>
+              <div class="card-body" id="fase-progress-list"></div>
+            </div>
+            <div class="card">
+              <div class="card-hd"><span class="card-title">Ações por Área</span></div>
+              <div class="card-body"><div class="chart-wrap"><canvas id="chart-areas"></canvas></div></div>
+            </div>
+          </div>
+
+          <div class="g2">
+            <div class="card">
+              <div class="card-hd">
+                <span class="card-title">Faturamento — Evolução</span>
+                <span style="font-size:11px;color:var(--copper);cursor:pointer;font-weight:500" onclick="goTo('indicadores')">Editar →</span>
+              </div>
+              <div class="card-body"><div class="chart-wrap"><canvas id="chart-fat-dash"></canvas></div></div>
+            </div>
+            <div class="card">
+              <div class="card-hd">
+                <span class="card-title">Feed de Atividade</span>
+                <span id="feed-count" style="font-size:11px;color:var(--g4)"></span>
+              </div>
+              <div class="card-body" id="activity-feed"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── INDICADORES ─── -->
+        <div class="view" id="view-indicadores">
+          <div class="sec-hd">
+            <div>
+              <div class="sec-title">Indicadores Estratégicos</div>
+              <div class="sec-sub">Dados reais da Komunik · Preencha mês a mês</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn-secondary" id="btn-add-mes" onclick="addMes()">+ Mês</button>
+              <button class="btn-copper" onclick="saveAll()">💾 Salvar</button>
+            </div>
+          </div>
+
+          <div class="shared-banner">
+            <div style="font-size:20px">📊</div>
+            <div class="shared-banner-text">
+              <strong>Área compartilhada com o cliente.</strong> Os sócios da Komunik podem inserir dados e indicadores diretamente aqui. Consultores podem editar tudo.
+            </div>
+          </div>
+
+          <div class="card mb14">
+            <div class="card-hd"><span class="card-title">Indicadores de Gestão — Cenário Atual</span></div>
+            <div class="card-body" style="padding:0">
+              <table class="tbl" id="ind-table">
+                <thead><tr>
+                  <th>Indicador</th><th>Área</th><th>Valor Atual</th><th>Meta 90 dias</th><th>Status</th>
+                </tr></thead>
+                <tbody id="ind-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><span class="card-title">Evolução Mensal — Faturamento</span></div>
+            <div class="card-body" style="padding:0">
+              <table class="tbl" id="fat-table">
+                <thead><tr>
+                  <th>Mês / Período</th>
+                  <th style="text-align:right">Faturamento (R$)</th>
+                  <th style="text-align:right">Propostas Enviadas</th>
+                  <th style="text-align:right">Convertidas</th>
+                  <th style="text-align:right">Ticket Médio (R$)</th>
+                  <th></th>
+                </tr></thead>
+                <tbody id="fat-tbody"></tbody>
+              </table>
+            </div>
+            <div class="card-body" style="padding-top:0">
+              <div class="chart-wrap" style="margin-top:16px"><canvas id="chart-fat2"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── FASE 1 ─── -->
+        <div class="view" id="view-fase1"><div id="fase1-body"></div></div>
+        <!-- ─── FASE 2 ─── -->
+        <div class="view" id="view-fase2">
+          <div class="sec-hd">
+            <div><div class="sec-title">Fase 2 — Cenário Atual</div><div class="sec-sub">Semana 3 · Síntese executiva</div></div>
+            <button class="btn-copper" onclick="saveAll()">💾 Salvar</button>
+          </div>
+          <div class="card mb14">
+            <div class="card-hd"><span class="card-title">Análise SWOT Simplificada</span></div>
+            <div class="card-body">
+              <div class="form-grid">
+                <div class="fg"><label class="fl">Ponto forte identificado</label><textarea class="fi fi-ta" id="f2-forte" placeholder="Ex: Equipe técnica experiente, reputação local sólida..."></textarea></div>
+                <div class="fg"><label class="fl">Principal gargalo</label><textarea class="fi fi-ta" id="f2-gargalo" placeholder="Ex: Ausência de processo comercial estruturado..."></textarea></div>
+                <div class="fg"><label class="fl">Oportunidade de mercado</label><textarea class="fi fi-ta" id="f2-oport" placeholder="Ex: Mercado de fachadas corporativas em expansão..."></textarea></div>
+                <div class="fg"><label class="fl">Risco crítico</label><textarea class="fi fi-ta" id="f2-risco" placeholder="Ex: Dependência de poucos clientes..."></textarea></div>
+                <div class="fg full"><label class="fl">Diagnóstico executivo — Síntese para os sócios</label><textarea class="fi fi-ta" style="min-height:110px" id="f2-exec" placeholder="Síntese executiva que será apresentada aos sócios da Komunik..."></textarea></div>
+              </div>
+            </div>
+          </div>
+          <div id="fase2-acoes"></div>
+        </div>
+        <!-- ─── FASE 3 ─── -->
+        <div class="view" id="view-fase3"><div id="fase3-body"></div></div>
+        <!-- ─── FASE 4 ─── -->
+        <div class="view" id="view-fase4">
+          <div class="sec-hd">
+            <div><div class="sec-title">Fase 4 — Estruturação Comercial</div><div class="sec-sub">Semanas 4–10 · Do zero</div></div>
+            <button class="btn-copper" onclick="saveAll()">💾 Salvar</button>
+          </div>
+          <div class="card mb14">
+            <div class="card-hd"><span class="card-title">Configuração do Setor Comercial</span></div>
+            <div class="card-body">
+              <div class="form-grid">
+                <div class="fg"><label class="fl">CRM Escolhido</label><select class="fi" id="f4-crm"><option>Planilha (Excel/Google Sheets)</option><option>Pipedrive</option><option>RD Station CRM</option><option>HubSpot Free</option><option>Outro</option></select></div>
+                <div class="fg"><label class="fl">Meta Mensal de Faturamento (R$)</label><input class="fi" type="number" id="f4-meta-fat" placeholder="Ex: 80000"></div>
+                <div class="fg"><label class="fl">Meta de Novos Clientes / mês</label><input class="fi" type="number" id="f4-meta-cli" placeholder="Ex: 5"></div>
+                <div class="fg"><label class="fl">Mercado-alvo prioritário</label><input class="fi" type="text" id="f4-mercado" placeholder="Ex: Construtoras e arquitetos do Vale do Aço"></div>
+                <div class="fg full"><label class="fl">Política de Comissão definida</label><textarea class="fi fi-ta" id="f4-comissao" placeholder="Ex: 3% sobre faturamento líquido para vendas acima de R$ 15.000..."></textarea></div>
+              </div>
+            </div>
+          </div>
+          <div id="fase4-acoes"></div>
+        </div>
+        <!-- ─── FASE 5 ─── -->
+        <div class="view" id="view-fase5"><div id="fase5-body"></div></div>
+
+        <!-- ─── AÇÕES ─── -->
+        <div class="view" id="view-acoes">
+          <div class="sec-hd">
+            <div><div class="sec-title">Plano de Ações</div><div class="sec-sub">Todas as ações das 5 fases</div></div>
+            <div style="display:flex;gap:8px">
+              <select class="fi" id="fa-fase" onchange="renderAcoesTable()" style="width:150px;padding:8px 10px;font-size:12px"><option value="">Todas as fases</option><option value="0">Fase 1</option><option value="1">Fase 2</option><option value="2">Fase 3</option><option value="3">Fase 4</option><option value="4">Fase 5</option></select>
+              <select class="fi" id="fa-area" onchange="renderAcoesTable()" style="width:180px;padding:8px 10px;font-size:12px"><option value="">Todas as áreas</option><option value="0">Adm/Financeiro</option><option value="1">Operacional</option><option value="2">Logística</option><option value="3">Comercial</option></select>
+              <select class="fi" id="fa-status" onchange="renderAcoesTable()" style="width:150px;padding:8px 10px;font-size:12px"><option value="">Todos</option><option value="done">Concluídas</option><option value="open">Pendentes</option></select>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-body" style="padding:0">
+              <table class="tbl">
+                <thead><tr>
+                  <th style="width:32px"></th>
+                  <th>Ação</th><th>Área</th><th>Fase</th><th>Prioridade</th>
+                  <th>Responsável</th><th>Prazo</th>
+                </tr></thead>
+                <tbody id="acoes-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── REUNIÕES ─── -->
+        <div class="view" id="view-reunioes">
+          <div class="sec-hd">
+            <div><div class="sec-title">Reuniões e Atas</div><div class="sec-sub">Registros das reuniões com os sócios</div></div>
+            <button class="btn-primary" id="btn-nova-reuniao" onclick="openModal('modal-reuniao')">+ Nova Reunião</button>
+          </div>
+          <div id="reunioes-list"></div>
+        </div>
+
+        <!-- ─── ACESSOS ─── -->
+        <div class="view" id="view-acessos">
+          <div class="sec-hd">
+            <div><div class="sec-title">Controle de Acessos</div><div class="sec-sub">Usuários e permissões do sistema</div></div>
+          </div>
+          <div class="g2">
+            <div class="card">
+              <div class="card-hd"><span class="card-title">Perfis de Acesso</span></div>
+              <div class="card-body" id="access-profiles"></div>
+            </div>
+            <div class="card">
+              <div class="card-hd"><span class="card-title">Permissões por Perfil</span></div>
+              <div class="card-body">
+                <table class="tbl">
+                  <thead><tr><th>Funcionalidade</th><th>Consultor</th><th>Equipe</th><th>Cliente</th></tr></thead>
+                  <tbody>
+                    <tr><td>Dashboard</td><td>✅ Total</td><td>✅ Total</td><td>✅ Total</td></tr>
+                    <tr><td>Indicadores</td><td>✅ Editar</td><td>✅ Editar</td><td>✅ Inserir dados</td></tr>
+                    <tr><td>Plano de Ações</td><td>✅ Editar</td><td>✅ Editar</td><td>👁 Visualizar</td></tr>
+                    <tr><td>Concluir Ações</td><td>✅ Sim</td><td>✅ Sim</td><td>❌ Não</td></tr>
+                    <tr><td>Reuniões / Atas</td><td>✅ Criar/Editar</td><td>✅ Criar</td><td>👁 Visualizar</td></tr>
+                    <tr><td>Controle de Acesso</td><td>✅ Total</td><td>❌ Não</td><td>❌ Não</td></tr>
+                    <tr><td>Exportar dados</td><td>✅ Sim</td><td>✅ Sim</td><td>❌ Não</td></tr>
+                    <tr><td>Alterar senhas</td><td>✅ Sim</td><td>❌ Não</td><td>❌ Não</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card" id="change-pw-card"></div>
+        </div>
+
+      </div><!-- /content -->
+    </div><!-- /main -->
+  </div><!-- /app-body -->
+</div><!-- /app -->
+
+<!-- MODAL REUNIÃO -->
+<div class="modal-bg" id="modal-reuniao">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title">Registrar Reunião</div>
+      <button class="modal-close" onclick="closeModal('modal-reuniao')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="fg"><label class="fl">Data</label><input class="fi" type="date" id="r-data"></div>
+      <div class="fg"><label class="fl">Fase</label>
+        <select class="fi" id="r-fase">
+          <option>Fase 1 — Diagnóstico</option><option>Fase 2 — Cenário Atual</option>
+          <option>Fase 3 — Plano Estratégico</option><option>Fase 4 — Comercial</option><option>Fase 5 — Acompanhamento</option>
+        </select>
+      </div>
+      <div class="fg full"><label class="fl">Participantes</label><input class="fi" type="text" id="r-partic" placeholder="Ex: Oséias, João (sócio), Maria (financeiro)"></div>
+      <div class="fg full"><label class="fl">Pontos discutidos</label><textarea class="fi fi-ta" id="r-pontos"></textarea></div>
+      <div class="fg full"><label class="fl">Decisões / Próximos passos</label><textarea class="fi fi-ta" id="r-decisoes"></textarea></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-secondary" onclick="closeModal('modal-reuniao')">Cancelar</button>
+      <button class="btn-primary" onclick="saveReuniao()">Salvar Ata</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+
+// ══════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════
+const ROLES = {
+  consultor: { pw:'cafe2024', label:'Consultor', color:'#C8823A', icon:'🧠', canEdit:true, canAdmin:true, canCheckActions:true },
+  equipe:    { pw:'equipe24', label:'Equipe Café',color:'#1A5FA8', icon:'👥', canEdit:true, canAdmin:false, canCheckActions:true },
+  cliente:   { pw:'komunik24',label:'Komunik ACM',color:'#0A7E5A', icon:'🏢', canEdit:false, canAdmin:false, canCheckActions:false },
+};
+
+let currentRole = 'consultor';
+let currentUser = null;
+
+function selectRole(r){
+  currentRole = r;
+  document.querySelectorAll('.role-btn').forEach((b,i)=>{
+    b.classList.toggle('active', ['consultor','cliente','equipe'][i]===r);
+  });
+}
+
+function doLogin(){
+  const pw = document.getElementById('login-pw').value;
+  const role = ROLES[currentRole];
+  if(!pw){ document.getElementById('login-err').textContent='Digite a senha.'; return; }
+  if(pw !== role.pw){ document.getElementById('login-err').textContent='Senha incorreta.'; return; }
+  currentUser = { role: currentRole, ...role, loginAt: new Date().toISOString() };
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  initApp();
+}
+
+function doLogout(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-pw').value='';
+  document.getElementById('login-err').textContent='';
+  currentUser = null;
+}
+
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const AREAS_DEF = [
+  {name:'Adm / Financeiro / Fiscal', short:'Adm/Fin',   color:'#1A5FA8', light:'#EBF4FF', cls:'a1'},
+  {name:'Operacional / Produção',    short:'Operacional',color:'#0A7E5A', light:'#E6FAF2', cls:'a2'},
+  {name:'Logística / Entrega',       short:'Logística',  color:'#9C5A14', light:'#FFF4E6', cls:'a3'},
+  {name:'Comercial',                 short:'Comercial',  color:'#7B1FA2', light:'#F5E6FF', cls:'a4'},
+];
+
+const PHASES_DEF = [
+  {num:1, label:'Fase 1', title:'Diagnóstico 360°', dur:'Sem 1–2', color:'#C8823A',
+   desc:'Levantamento completo nas 4 grandes áreas. Entrevistas, campo e mapeamento de gaps críticos.',
+   areas:[
+    [['Levantar DRE, fluxo de caixa e inadimplência','high'],['Verificar regularidade fiscal (CNPJ, tributos, notas)','high'],['Mapear estrutura de custos fixos e variáveis','med'],['Analisar contratos com fornecedores e condições de pagamento','low']],
+    [['Mapear fluxo de produção e montagem ACM','high'],['Identificar capacidade instalada vs utilização real','high'],['Levantar perdas, retrabalho e gargalos operacionais','med'],['Verificar equipamentos, manutenção e segurança','low']],
+    [['Mapear rotas, prazos e custos de entrega atuais','high'],['Verificar ocorrências de atraso e insatisfação','med'],['Analisar gestão de estoque de matéria-prima','med'],['Avaliar parcerias com transportadoras','low']],
+    [['Entrevistar equipe comercial: rotina, metas, ferramentas','high'],['Mapear carteira de clientes ativa vs inativa','high'],['Levantar histórico de propostas e conversão','med'],['Analisar presença digital e canais de captação','low']],
+  ]},
+  {num:2, label:'Fase 2', title:'Cenário Atual — Indicadores', dur:'Sem 3', color:'#1A5FA8',
+   desc:'Construção do painel de indicadores reais da Komunik. O raio-X que orienta a tomada de decisão.',
+   areas:[
+    [['Calcular margem bruta e margem líquida atual','high'],['Calcular ponto de equilíbrio financeiro (PE)','high'],['Projeção de caixa 30/60/90 dias','med'],['Índice de inadimplência e prazo médio de recebimento','med']],
+    [['Taxa de ocupação da capacidade produtiva (%)','high'],['Tempo médio de produção por m² de ACM','med'],['Índice de retrabalho e custo de não-qualidade','med'],['Custo operacional por obra entregue','low']],
+    [['Prazo médio de entrega prometido vs realizado','high'],['Custo logístico como % do faturamento','med'],['Índice de ruptura de estoque de insumos críticos','low']],
+    [['Faturamento médio mensal (últimos 6 meses)','high'],['Taxa de conversão de propostas em contratos','high'],['Ticket médio por projeto e segmento','med'],['CAC estimado — Custo de Aquisição de Cliente','low']],
+  ]},
+  {num:3, label:'Fase 3', title:'Plano de Ação Estratégico', dur:'Sem 3–4', color:'#9C5A14',
+   desc:'Plano prioritário por área com ações, responsáveis, prazos e indicadores. Revisado semanalmente.',
+   areas:[
+    [['Definir política de crédito e cobrança para clientes PJ','high'],['Implantar DRE gerencial mensal — revisão todo dia 5','high'],['Renegociar prazos com 3 principais fornecedores','med'],['Regularizar pendências fiscais identificadas no diagnóstico','med']],
+    [['Padronizar processo de corte, dobramento e montagem (POP)','high'],['Criar checklist de qualidade por etapa da produção','high'],['Definir capacidade máxima de projetos simultâneos','med'],['Implantar ficha de custo por obra/projeto','med']],
+    [['Criar cronograma de entregas integrado ao comercial','high'],['Definir estoque mínimo de insumos críticos','med'],['Estruturar vistoria pós-instalação com cliente','med'],['Avaliar terceiro para entregas de longa distância','low']],
+    [['Definir mercado-alvo prioritário','high'],['Criar política de preços com tabela escalonada','high'],['Estruturar funil de vendas com CRM','med'],['Definir metas mensais de faturamento e novos clientes','med']],
+  ]},
+  {num:4, label:'Fase 4', title:'Estruturação Comercial', dur:'Sem 4–10', color:'#7B1FA2',
+   desc:'Criação completa do setor comercial do zero. Processo, script, funil, ferramentas e pessoas.',
+   areas:[
+    [['Definir orçamento mensal da operação comercial','high'],['Criar política de comissão e bonificação','high'],['Estruturar relatório de vendas e ROI por canal','med'],['Definir verba para prospecção e marketing digital','med']],
+    [['Criar kit de vendas: portfólio, catálogo e cases visuais','high'],['Padronizar orçamento técnico com prazo e validade','high'],['Integrar vendas e produção: validar prazo antes de fechar','high'],['Treinar equipe para venda consultiva','med']],
+    [['Incluir logística no fechamento do contrato','high'],['Criar SLA de entrega por tipo de projeto','med'],['Alinhar agenda de produção com entregas semanalmente','med'],['Criar protocolo de entrega e aceite formal','low']],
+    [['Criar rotina semanal de prospecção ativa','high'],['Implantar CRM (Pipedrive, Trello ou planilha)','high'],['Desenvolver script de abordagem e fechamento','high'],['Criar programa de indicação com clientes ativos','med']],
+  ]},
+  {num:5, label:'Fase 5', title:'Acompanhamento e Resultados', dur:'Sem 8–12', color:'#0A7E5A',
+   desc:'Monitoramento semanal dos indicadores, ajustes no plano e entrega do relatório executivo final.',
+   areas:[
+    [['Revisar DRE e fluxo de caixa todo dia 5 do mês','high'],['Acompanhar evolução do ponto de equilíbrio','high'],['Verificar cumprimento das ações financeiras do plano','med'],['Relatório financeiro comparativo: antes vs depois','med']],
+    [['Auditar POP de produção: está sendo seguido?','high'],['Monitorar índice de retrabalho quinzenalmente','med'],['Verificar se capacidade acompanha crescimento de vendas','med'],['Ajustar processos conforme gargalos em campo','low']],
+    [['Medir prazo médio de entrega real vs meta','high'],['Coletar NPS de clientes entregues no período','med'],['Verificar estoque: está no nível mínimo definido?','med'],['Registrar ocorrências e acionar plano de contingência','low']],
+    [['Revisar funil de vendas toda segunda-feira','high'],['Comparar meta vs realizado: faturamento e clientes','high'],['Reunião quinzenal com sócios: próximos 15 dias','med'],['Entregar relatório executivo final da consultoria','med']],
+  ]},
+];
+
+// Area mapping [phaseIdx][actionIdx] → areaIdx
+const ACTION_AREA_MAP = [
+  [0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3],
+  [0,0,0,0,1,1,1,1,2,2,2,3,3,3,3],
+  [0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3],
+  [0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3],
+  [0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3],
+];
+
+const DEFAULT_IND = [
+  {name:'Margem Bruta (%)',              area:0, val:'', meta:'35%',  status:'pend'},
+  {name:'Margem Líquida (%)',            area:0, val:'', meta:'12%',  status:'pend'},
+  {name:'Ponto de Equilíbrio (R$)',      area:0, val:'', meta:'—',    status:'pend'},
+  {name:'Inadimplência (%)',             area:0, val:'', meta:'< 5%', status:'pend'},
+  {name:'Capacidade Produtiva (%)',      area:1, val:'', meta:'80%',  status:'pend'},
+  {name:'Índice de Retrabalho (%)',      area:1, val:'', meta:'< 3%', status:'pend'},
+  {name:'Tempo médio produção (dias)',   area:1, val:'', meta:'—',    status:'pend'},
+  {name:'Prazo entrega prometido (dias)',area:2, val:'', meta:'—',    status:'pend'},
+  {name:'Prazo entrega realizado (dias)',area:2, val:'', meta:'—',    status:'pend'},
+  {name:'Custo logístico / fat. (%)',    area:2, val:'', meta:'< 8%', status:'pend'},
+  {name:'Faturamento médio mensal (R$)', area:3, val:'', meta:'—',    status:'pend'},
+  {name:'Taxa de Conversão (%)',         area:3, val:'', meta:'40%',  status:'pend'},
+  {name:'Ticket Médio (R$)',             area:3, val:'', meta:'—',    status:'pend'},
+  {name:'CAC estimado (R$)',             area:3, val:'', meta:'—',    status:'pend'},
+];
+
+// ══════════════════════════════════════════════
+// STATE (simulates shared storage)
+// ══════════════════════════════════════════════
+let S = {
+  actions: PHASES_DEF.map(ph => ph.areas.flat().map(([t,p])=>({t,prio:p,done:false,resp:'',prazo:''}))),
+  indicators: JSON.parse(JSON.stringify(DEFAULT_IND)),
+  fat_months: [{mes:'Mês 1',fat:'',prop:'',conv:'',ticket:''},{mes:'Mês 2',fat:'',prop:'',conv:'',ticket:''},{mes:'Mês 3',fat:'',prop:'',conv:'',ticket:''}],
+  f2:{forte:'',gargalo:'',oport:'',risco:'',exec:''},
+  f4:{crm:'Planilha (Excel/Google Sheets)',meta_fat:'',meta_cli:'',mercado:'',comissao:''},
+  reunioes:[],
+  activity:[],
+  currentPhase:1,
+  passwords:{consultor:'cafe2024',equipe:'equipe24',cliente:'komunik24'},
+  last_saved: null,
+};
+
+function loadState(){
+  try{ const d=localStorage.getItem('komunik_shared_v3'); if(d) S={...S,...JSON.parse(d)}; }catch(e){}
+}
+
+function saveState(){
+  collectFields();
+  S.last_saved = new Date().toISOString();
+  try{ localStorage.setItem('komunik_shared_v3', JSON.stringify(S)); }catch(e){}
+}
+
+function saveAll(){
+  saveState();
+  renderCurrentView();
+  showToast('✓ Dados salvos — sistema sincronizado');
+}
+
+function addActivity(msg){
+  S.activity.unshift({msg, user: currentUser?.label || '—', time: new Date().toLocaleString('pt-BR',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'})});
+  S.activity = S.activity.slice(0,30);
+}
+
+// ══════════════════════════════════════════════
+// FIELD COLLECTION
+// ══════════════════════════════════════════════
+function collectFields(){
+  ['forte','gargalo','oport','risco','exec'].forEach(k=>{
+    const el=document.getElementById('f2-'+k); if(el) S.f2[k]=el.value;
+  });
+  ['crm','meta-fat','meta-cli','mercado','comissao'].forEach(k=>{
+    const el=document.getElementById('f4-'+k); if(el) S.f4[k.replace('-','_')]=el.value;
+  });
+  document.querySelectorAll('[data-ind]').forEach(el=>{
+    const [i,f]=el.getAttribute('data-ind').split(':');
+    if(S.indicators[i]) S.indicators[i][f]=el.value;
+  });
+  document.querySelectorAll('[data-fat]').forEach(el=>{
+    const [i,f]=el.getAttribute('data-fat').split(':');
+    if(S.fat_months[i]) S.fat_months[i][f]=el.value;
+  });
+  document.querySelectorAll('[data-act]').forEach(el=>{
+    const [pi,ai,f]=el.getAttribute('data-act').split(':');
+    if(S.actions[pi]&&S.actions[pi][ai]) S.actions[pi][ai][f]=el.value;
+  });
+}
+
+// ══════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════
+const NAV_CONSULTOR = [
+  {sec:'Visão Geral'},
+  {id:'dashboard',icon:'◉',label:'Dashboard'},
+  {id:'indicadores',icon:'📊',label:'Indicadores'},
+  {sec:'Fases da Consultoria'},
+  {id:'fase1',icon:'🔍',label:'F1 · Diagnóstico 360'},
+  {id:'fase2',icon:'📋',label:'F2 · Cenário Atual'},
+  {id:'fase3',icon:'🗺️',label:'F3 · Plano Estratégico'},
+  {id:'fase4',icon:'🏗️',label:'F4 · Setor Comercial'},
+  {id:'fase5',icon:'📈',label:'F5 · Acompanhamento'},
+  {sec:'Gestão'},
+  {id:'acoes',icon:'✅',label:'Plano de Ações'},
+  {id:'reunioes',icon:'🗓️',label:'Reuniões / Atas'},
+  {id:'acessos',icon:'🔐',label:'Controle de Acesso'},
+];
+const NAV_EQUIPE = NAV_CONSULTOR.filter(n=>n.id!=='acessos');
+const NAV_CLIENTE = [
+  {sec:'Visão Geral'},
+  {id:'dashboard',icon:'◉',label:'Dashboard'},
+  {id:'indicadores',icon:'📊',label:'Indicadores'},
+  {sec:'Acompanhamento'},
+  {id:'fase1',icon:'🔍',label:'F1 · Diagnóstico'},
+  {id:'fase2',icon:'📋',label:'F2 · Cenário Atual'},
+  {id:'fase3',icon:'🗺️',label:'F3 · Plano Estratégico'},
+  {id:'fase4',icon:'🏗️',label:'F4 · Estruturação'},
+  {id:'fase5',icon:'📈',label:'F5 · Acompanhamento'},
+  {id:'reunioes',icon:'🗓️',label:'Reuniões / Atas'},
+];
+
+let activeView = 'dashboard';
+
+function buildNav(){
+  const navMap = {consultor:NAV_CONSULTOR,equipe:NAV_EQUIPE,cliente:NAV_CLIENTE};
+  const items = navMap[currentRole] || NAV_CONSULTOR;
+  const el = document.getElementById('sidebar-nav');
+  el.innerHTML = items.map(n=>{
+    if(n.sec) return `<div class="nav-sec">${n.sec}</div>`;
+    return `<div class="nav-item${n.id===activeView?' active':''}" onclick="goTo('${n.id}')">
+      <span class="nav-icon">${n.icon}</span>${n.label}
+    </div>`;
+  }).join('');
+}
+
+function goTo(id){
+  collectFields();
+  activeView=id;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id)?.classList.add('active');
+  buildNav();
+  renderView(id);
+}
+
+function renderCurrentView(){ renderView(activeView); }
+
+function renderView(id){
+  if(id==='dashboard')   renderDashboard();
+  if(id==='indicadores') renderIndicadores();
+  if(id==='fase1') renderPhaseView(0,'fase1-body');
+  if(id==='fase2') { renderF2Fields(); renderPhaseActions(1,'fase2-acoes'); }
+  if(id==='fase3') renderPhaseView(2,'fase3-body');
+  if(id==='fase4') { renderF4Fields(); renderPhaseActions(3,'fase4-acoes'); }
+  if(id==='fase5') renderPhaseView(4,'fase5-body');
+  if(id==='acoes') renderAcoesTable();
+  if(id==='reunioes') renderReunioes();
+  if(id==='acessos') renderAcessos();
+}
+
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard(){
+  const isCliente = currentRole==='cliente';
+  const hr = new Date().getHours();
+  const greet = hr<12?'Bom dia':'hr<18?Boa tarde':'Boa noite';
+  document.getElementById('dash-greeting').textContent = `${hr<12?'Bom dia':hr<18?'Boa tarde':'Boa noite'}, ${currentUser.label}! · Komunik ACM · Sistema compartilhado`;
+
+  // KPIs
+  let totAct=0,doneAct=0;
+  S.actions.forEach(ph=>ph.forEach(a=>{totAct++;if(a.done)doneAct++;}));
+  const pct=totAct?Math.round(doneAct/totAct*100):0;
+  const fatInd=S.indicators.find(i=>i.name==='Faturamento médio mensal (R$)');
+  const convInd=S.indicators.find(i=>i.name==='Taxa de Conversão (%)');
+
+  document.getElementById('kpi-strip').innerHTML=`
+    <div class="kpi stagger"><div class="kpi-accent" style="background:#C8823A"></div>
+      <div class="kpi-label">Faturamento Mensal</div>
+      <div class="kpi-value">${fatInd?.val?'R$ '+Number(fatInd.val).toLocaleString('pt-BR'):'—'}</div>
+      <div class="kpi-sub">Meta: ${S.f4.meta_fat?'R$ '+Number(S.f4.meta_fat).toLocaleString('pt-BR'):'Não definida'}</div>
+    </div>
+    <div class="kpi"><div class="kpi-accent" style="background:var(--a1)"></div>
+      <div class="kpi-label">Taxa de Conversão</div>
+      <div class="kpi-value">${convInd?.val?convInd.val+'%':'—'}</div>
+      <div class="kpi-sub">Meta: 40% · Propostas → Contratos</div>
+    </div>
+    <div class="kpi"><div class="kpi-accent" style="background:var(--a2)"></div>
+      <div class="kpi-label">Ações Concluídas</div>
+      <div class="kpi-value">${doneAct}/${totAct}</div>
+      <div class="kpi-sub ${pct>=50?'up':''}">${pct}% do plano concluído</div>
+    </div>
+    <div class="kpi"><div class="kpi-accent" style="background:var(--a4)"></div>
+      <div class="kpi-label">Fase Atual</div>
+      <div class="kpi-value">F${S.currentPhase}</div>
+      <div class="kpi-sub">${PHASES_DEF[S.currentPhase-1].title}</div>
+    </div>`;
+
+  // Phase progress
+  const colors=['#C8823A','#1A5FA8','#9C5A14','#7B1FA2','#0A7E5A'];
+  document.getElementById('fase-progress-list').innerHTML = PHASES_DEF.map((ph,i)=>{
+    let t=0,d=0; S.actions[i].forEach(a=>{t++;if(a.done)d++;});
+    const p=t?Math.round(d/t*100):0;
+    return `<div class="prog-wrap">
+      <div class="prog-row"><span class="prog-label">${ph.label} · ${ph.title}</span><span class="prog-pct">${d}/${t} · ${p}%</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${p}%;background:${colors[i]}"></div></div>
+    </div>`;
+  }).join('');
+
+  // Charts
+  setTimeout(()=>{
+    renderAreasChart();
+    renderFatChart('chart-fat-dash');
+  },50);
+
+  // Activity feed
+  const feed = document.getElementById('activity-feed');
+  if(!S.activity.length){
+    feed.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Nenhuma atividade registrada ainda.</div></div>';
+  } else {
+    const dotColors={consultor:'#C8823A',equipe:'#1A5FA8',cliente:'#0A7E5A'};
+    feed.innerHTML = S.activity.slice(0,8).map(a=>`
+      <div class="feed-item">
+        <div class="feed-dot" style="background:${dotColors[a.role]||'#ccc'}"></div>
+        <div class="feed-text"><b>${a.user}</b> · ${a.msg}</div>
+        <div class="feed-time">${a.time}</div>
+      </div>`).join('');
+    document.getElementById('feed-count').textContent = S.activity.length+' eventos';
+  }
+
+  // Last save
+  if(S.last_saved){
+    const d=new Date(S.last_saved);
+    document.getElementById('last-save-info').textContent='Último save: '+d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  }
+
+  // Simulate random online users
+  const count = 1 + Math.floor(Math.random()*2);
+  document.getElementById('online-users').textContent = count + ' usuário'+(count>1?'s':'')+' online';
+}
+
+function renderAreasChart(){
+  const c=document.getElementById('chart-areas'); if(!c)return;
+  if(c._ci) c._ci.destroy();
+  const areaProgress=AREAS_DEF.map((a,ai)=>{
+    let t=0,d=0;
+    ACTION_AREA_MAP.forEach((ph,pi)=>{
+      ph.forEach((aIdx,actIdx)=>{ if(aIdx===ai&&S.actions[pi]&&S.actions[pi][actIdx]){t++;if(S.actions[pi][actIdx].done)d++;} });
+    });
+    return t?Math.round(d/t*100):0;
+  });
+  c._ci=new Chart(c,{type:'doughnut',data:{labels:AREAS_DEF.map(a=>a.short),datasets:[{data:areaProgress,backgroundColor:AREAS_DEF.map(a=>a.color),borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10,padding:10}}}}});
+}
+
+function renderFatChart(canvasId){
+  const c=document.getElementById(canvasId); if(!c)return;
+  if(c._ci) c._ci.destroy();
+  c._ci=new Chart(c,{type:'bar',data:{
+    labels:S.fat_months.map(m=>m.mes),
+    datasets:[{label:'Faturamento (R$)',data:S.fat_months.map(m=>parseFloat(m.fat)||0),backgroundColor:'#C8823A',borderRadius:5}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{y:{beginAtZero:true,ticks:{font:{size:10},callback:v=>'R$ '+v.toLocaleString('pt-BR')},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+}
+
+// ══════════════════════════════════════════════
+// INDICADORES
+// ══════════════════════════════════════════════
+function renderIndicadores(){
+  const canEdit = currentRole!=='cliente'||true; // cliente can insert data
+  const statusOpts=['pend','prog','done','crit'];
+  const statusLabels={pend:'Pendente',prog:'Em andamento',done:'Atingido',crit:'Crítico'};
+
+  document.getElementById('btn-add-mes').style.display = currentRole==='cliente'?'':'inline-flex';
+
+  document.getElementById('ind-tbody').innerHTML=S.indicators.map((ind,i)=>{
+    const a=AREAS_DEF[ind.area];
+    const sBadge={pend:'b-pend',prog:'b-prog',done:'b-done',crit:'b-crit'}[ind.status]||'b-pend';
+    return `<tr>
+      <td><strong>${ind.name}</strong></td>
+      <td><span class="chip c-${a.cls}"><span class="chip-dot cd-${a.cls}"></span>${a.short}</span></td>
+      <td><input type="text" class="fi-sm" data-ind="${i}:val" value="${ind.val}" placeholder="—" style="width:100px;text-align:right"></td>
+      <td style="font-size:12px;color:var(--g3)">${ind.meta}</td>
+      <td>
+        ${currentUser.canEdit?`<select class="fi-sm" data-ind="${i}:status" style="width:130px">
+          ${statusOpts.map(s=>`<option value="${s}"${ind.status===s?' selected':''}>${statusLabels[s]}</option>`).join('')}
+        </select>`:`<span class="badge ${sBadge}">${statusLabels[ind.status]}</span>`}
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('fat-tbody').innerHTML=S.fat_months.map((m,i)=>`<tr>
+    <td><input type="text" class="fi-sm" data-fat="${i}:mes" value="${m.mes}" style="width:90px"></td>
+    <td><input type="number" class="fi-sm" data-fat="${i}:fat" value="${m.fat}" placeholder="0" style="width:110px;text-align:right"></td>
+    <td><input type="number" class="fi-sm" data-fat="${i}:prop" value="${m.prop}" placeholder="0" style="width:80px;text-align:right"></td>
+    <td><input type="number" class="fi-sm" data-fat="${i}:conv" value="${m.conv}" placeholder="0" style="width:80px;text-align:right"></td>
+    <td><input type="number" class="fi-sm" data-fat="${i}:ticket" value="${m.ticket}" placeholder="0" style="width:110px;text-align:right"></td>
+    <td>${currentRole!=='cliente'?`<button onclick="removeMes(${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;line-height:1" title="Remover">×</button>`:'&nbsp;'}</td>
+  </tr>`).join('');
+
+  setTimeout(()=>renderFatChart('chart-fat2'),50);
+}
+
+function addMes(){
+  S.fat_months.push({mes:'Mês '+(S.fat_months.length+1),fat:'',prop:'',conv:'',ticket:''});
+  renderIndicadores();
+}
+function removeMes(i){ S.fat_months.splice(i,1); renderIndicadores(); }
+
+// ══════════════════════════════════════════════
+// PHASE VIEW
+// ══════════════════════════════════════════════
+function renderPhaseView(phaseIdx, containerId){
+  const ph=PHASES_DEF[phaseIdx];
+  const container=document.getElementById(containerId);
+  if(!container)return;
+
+  let html=`<div class="sec-hd">
+    <div><div class="sec-title">${ph.label} — ${ph.title}</div><div class="sec-sub">${ph.dur} · ${ph.desc}</div></div>
+    <button class="btn-copper" onclick="saveAll()">💾 Salvar</button>
+  </div>
+  <div class="phase-strip" style="background:${ph.color}">
+    <div class="phase-num">${String(ph.num).padStart(2,'0')}</div>
+    <div class="phase-meta">
+      <div class="phase-label">${ph.label}</div>
+      <div class="phase-name">${ph.title}</div>
+      <div class="phase-desc">${ph.desc}</div>
+    </div>
+    <div class="phase-dur">${ph.dur}</div>
+  </div>`;
+  container.innerHTML=html;
+  renderPhaseActions(phaseIdx, containerId, true);
+}
+
+function renderPhaseActions(phaseIdx, containerId, append=false){
+  const ph=PHASES_DEF[phaseIdx];
+  let actionIdx=0;
+  const areaGroups=[[],[],[],[]];
+  S.actions[phaseIdx].forEach((a,ai)=>{
+    const areaIdx=ACTION_AREA_MAP[phaseIdx]?ACTION_AREA_MAP[phaseIdx][ai]??Math.floor(ai/(S.actions[phaseIdx].length/4)):Math.floor(ai/4);
+    const idx=Math.min(areaIdx,3);
+    areaGroups[idx].push({a,ai});
+  });
+
+  const prioCls={high:'b-high',med:'b-med',low:'b-low'};
+  const prioLabel={high:'Alta',med:'Média',low:'Baixa'};
+  const canCheck=currentUser.canCheckActions;
+
+  let html=`<div class="g2">`;
+  AREAS_DEF.forEach((area,aIdx)=>{
+    const items=areaGroups[aIdx]||[];
+    const done=items.filter(({a})=>a.done).length;
+    const pct=items.length?Math.round(done/items.length*100):0;
+    html+=`<div class="card">
+      <div class="card-hd">
+        <span class="card-title" style="color:${area.color}">${area.name}</span>
+        <span style="font-size:11px;color:var(--g3)">${done}/${items.length} · ${pct}%</span>
+      </div>
+      <div style="padding:0 18px 6px">
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${area.color}"></div></div>
+      </div>
+      <div class="card-body" style="padding-top:6px">`;
+    items.forEach(({a,ai})=>{
+      const areaOfThisAction=ACTION_AREA_MAP[phaseIdx]?ACTION_AREA_MAP[phaseIdx][ai]??aIdx:aIdx;
+      html+=`<div class="act-row" onclick="${canCheck?`toggleAction(${phaseIdx},${ai})`:''}" style="${!canCheck?'cursor:default':''}">
+        <div class="act-chk${a.done?' done':''}"></div>
+        <div style="flex:1">
+          <div class="act-text${a.done?' done':''}">${a.t}</div>
+          <div class="act-meta">
+            <span class="badge ${prioCls[a.prio]}">${prioLabel[a.prio]}</span>
+            ${currentUser.canEdit?`
+              <input type="text" class="fi-sm" data-act="${phaseIdx}:${ai}:resp" value="${a.resp||''}" placeholder="Responsável" onclick="event.stopPropagation()" style="width:120px">
+              <input type="date" class="fi-sm" data-act="${phaseIdx}:${ai}:prazo" value="${a.prazo||''}" onclick="event.stopPropagation()" style="width:130px">
+            `:`${a.resp?`<span style="font-size:11px;color:var(--g3)">${a.resp}</span>`:''}${a.prazo?`<span style="font-size:11px;color:var(--g3)">${a.prazo}</span>`:''}`}
+          </div>
+        </div>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  });
+  html+=`</div>`;
+
+  const container=document.getElementById(containerId);
+  if(append) container.insertAdjacentHTML('beforeend',html);
+  else container.innerHTML=html;
+}
+
+function renderF2Fields(){
+  ['forte','gargalo','oport','risco','exec'].forEach(k=>{
+    const el=document.getElementById('f2-'+k); if(el) el.value=S.f2[k]||'';
+  });
+}
+function renderF4Fields(){
+  const m={'crm':'crm','meta-fat':'meta_fat','meta-cli':'meta_cli','mercado':'mercado','comissao':'comissao'};
+  Object.entries(m).forEach(([id,key])=>{const el=document.getElementById('f4-'+id);if(el)el.value=S.f4[key]||'';});
+}
+
+// ══════════════════════════════════════════════
+// TOGGLE ACTION
+// ══════════════════════════════════════════════
+function toggleAction(pi,ai){
+  if(!currentUser.canCheckActions){showToast('⚠ Sem permissão para marcar ações'); return;}
+  collectFields();
+  S.actions[pi][ai].done=!S.actions[pi][ai].done;
+  const msg=(S.actions[pi][ai].done?'Concluiu':'Reabriu')+' ação: '+S.actions[pi][ai].t.substring(0,40)+'...';
+  addActivity(msg);
+  S.activity[0].role=currentRole;
+  saveState();
+  renderCurrentView();
+  showToast(S.actions[pi][ai].done?'✓ Ação marcada como concluída':'↩ Ação reaberta');
+}
+
+// ══════════════════════════════════════════════
+// AÇÕES TABLE
+// ══════════════════════════════════════════════
+function renderAcoesTable(){
+  const ff=document.getElementById('fa-fase').value;
+  const fa=document.getElementById('fa-area').value;
+  const fs=document.getElementById('fa-status').value;
+  const prioCls={high:'b-high',med:'b-med',low:'b-low'};
+  const prioLabel={high:'Alta',med:'Média',low:'Baixa'};
+  const canCheck=currentUser.canCheckActions;
+  let rows='';
+  S.actions.forEach((ph,pi)=>{
+    if(ff!==''&&parseInt(ff)!==pi)return;
+    ph.forEach((a,ai)=>{
+      const aIdx=Math.min(ACTION_AREA_MAP[pi]?ACTION_AREA_MAP[pi][ai]??0:0,3);
+      if(fa!==''&&parseInt(fa)!==aIdx)return;
+      if(fs==='done'&&!a.done)return;
+      if(fs==='open'&&a.done)return;
+      const area=AREAS_DEF[aIdx];
+      rows+=`<tr>
+        <td onclick="${canCheck?`toggleAction(${pi},${ai})`:''}" style="cursor:${canCheck?'pointer':'default'};text-align:center">
+          <div class="act-chk${a.done?' done':''}" style="margin:auto"></div>
+        </td>
+        <td><span style="font-size:12px;${a.done?'text-decoration:line-through;color:var(--g4)':''}">${a.t}</span></td>
+        <td><span class="chip c-${area.cls}"><span class="chip-dot cd-${area.cls}"></span>${area.short}</span></td>
+        <td style="font-size:11px;color:var(--g3)">${PHASES_DEF[pi].label}</td>
+        <td><span class="badge ${prioCls[a.prio]}">${prioLabel[a.prio]}</span></td>
+        <td>${currentUser.canEdit?`<input type="text" class="fi-sm" value="${a.resp||''}" data-act="${pi}:${ai}:resp" placeholder="—" style="width:110px">`:`<span style="font-size:12px;color:var(--g2)">${a.resp||'—'}</span>`}</td>
+        <td>${currentUser.canEdit?`<input type="date" class="fi-sm" value="${a.prazo||''}" data-act="${pi}:${ai}:prazo" style="width:130px">`:`<span style="font-size:12px;color:var(--g2)">${a.prazo||'—'}</span>`}</td>
+      </tr>`;
+    });
+  });
+  document.getElementById('acoes-tbody').innerHTML=rows||'<tr><td colspan="7" style="text-align:center;color:var(--g3);padding:24px;font-size:13px">Nenhuma ação com esses filtros.</td></tr>';
+}
+
+// ══════════════════════════════════════════════
+// REUNIÕES
+// ══════════════════════════════════════════════
+function renderReunioes(){
+  const canCreate=currentUser.canEdit||currentRole==='equipe';
+  const btn=document.getElementById('btn-nova-reuniao');
+  if(btn) btn.style.display=canCreate?'':'none';
+
+  const el=document.getElementById('reunioes-list');
+  if(!S.reunioes.length){
+    el.innerHTML=`<div class="empty-state card" style="padding:40px"><div class="empty-icon">🗓️</div><div class="empty-text">Nenhuma reunião registrada ainda.<br>${canCreate?'Clique em <b>+ Nova Reunião</b> para começar.':'As reuniões registradas pelo consultor aparecerão aqui.'}</div></div>`;
+    return;
+  }
+  el.innerHTML=S.reunioes.slice().reverse().map((r,ri)=>`
+    <div class="card mb14">
+      <div class="card-hd">
+        <div>
+          <span class="card-title">${r.data} · ${r.fase}</span>
+          <div style="font-size:11px;color:var(--g3);margin-top:2px">👥 ${r.partic}</div>
+        </div>
+        ${currentUser.canEdit?`<button onclick="removeReuniao(${S.reunioes.length-1-ri})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:12px">Remover</button>`:''}
+      </div>
+      <div class="card-body">
+        <div class="g2">
+          <div>
+            <div class="fl" style="margin-bottom:6px">Pontos discutidos</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--g2);white-space:pre-wrap">${r.pontos||'—'}</div>
+          </div>
+          <div>
+            <div class="fl" style="margin-bottom:6px">Decisões / Próximos passos</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--g2);white-space:pre-wrap">${r.decisoes||'—'}</div>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function saveReuniao(){
+  const r={
+    data:document.getElementById('r-data').value||new Date().toLocaleDateString('pt-BR'),
+    fase:document.getElementById('r-fase').value,
+    partic:document.getElementById('r-partic').value,
+    pontos:document.getElementById('r-pontos').value,
+    decisoes:document.getElementById('r-decisoes').value,
+    createdBy:currentUser.label,
+  };
+  S.reunioes.push(r);
+  addActivity(`Registrou ata: ${r.fase}`); S.activity[0].role=currentRole;
+  closeModal('modal-reuniao');
+  saveState();
+  renderReunioes();
+  showToast('✓ Ata registrada com sucesso');
+  ['r-data','r-partic','r-pontos','r-decisoes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function removeReuniao(i){ S.reunioes.splice(i,1); saveState(); renderReunioes(); }
+
+// ══════════════════════════════════════════════
+// ACESSOS (consultor only)
+// ══════════════════════════════════════════════
+function renderAcessos(){
+  const profiles=[
+    {role:'consultor',label:'Consultor',user:'Oséias Nunes',email:'oseas@cafeempresarial.com.br',color:'#C8823A',icon:'🧠',desc:'Acesso total ao sistema'},
+    {role:'equipe',label:'Equipe Café',user:'Equipe Café Empresarial',email:'equipe@cafeempresarial.com.br',color:'#1A5FA8',icon:'👥',desc:'Acesso de editor (sem admin)'},
+    {role:'cliente',label:'Komunik ACM',user:'Sócios Komunik',email:'contato@komunik.com.br',color:'#0A7E5A',icon:'🏢',desc:'Visualizar + inserir dados'},
+  ];
+  document.getElementById('access-profiles').innerHTML=profiles.map(p=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--g6)">
+      <div style="width:38px;height:38px;border-radius:50%;background:${p.color}22;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${p.icon}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--navy)">${p.user}</div>
+        <div style="font-size:11px;color:var(--g3)">${p.email}</div>
+        <div style="font-size:11px;color:var(--g3);margin-top:1px">${p.desc}</div>
+      </div>
+      <span style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;background:${p.color}15;color:${p.color}">${p.label}</span>
+    </div>`).join('');
+
+  if(currentRole==='consultor'){
+    document.getElementById('change-pw-card').innerHTML=`
+      <div class="card-hd"><span class="card-title">Alterar Senhas de Acesso</span></div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="fg"><label class="fl">Nova senha — Consultor</label><input class="fi" type="password" id="pw-consultor" placeholder="••••••••"></div>
+          <div class="fg"><label class="fl">Nova senha — Equipe</label><input class="fi" type="password" id="pw-equipe" placeholder="••••••••"></div>
+          <div class="fg"><label class="fl">Nova senha — Cliente (Komunik)</label><input class="fi" type="password" id="pw-cliente" placeholder="••••••••"></div>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button class="btn-copper" onclick="savePasswords()">Salvar Senhas</button>
+          <span style="font-size:11px;color:var(--g3);align-self:center">⚠ Senhas salvas localmente no navegador</span>
+        </div>
+      </div>`;
+  } else {
+    document.getElementById('change-pw-card').innerHTML='';
+  }
+}
+
+function savePasswords(){
+  ['consultor','equipe','cliente'].forEach(r=>{
+    const el=document.getElementById('pw-'+r);
+    if(el&&el.value.length>=4){ S.passwords[r]=el.value; ROLES[r].pw=el.value; el.value=''; }
+  });
+  saveState();
+  showToast('✓ Senhas atualizadas');
+}
+
+// ══════════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════════
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ══════════════════════════════════════════════
+// TOPBAR PHASE
+// ══════════════════════════════════════════════
+function updateTopbar(){
+  const ph=PHASES_DEF[S.currentPhase-1];
+  document.getElementById('topbar-phase').textContent=`${ph.label} — ${ph.title}`;
+  document.getElementById('topbar-user').innerHTML=`
+    <div class="user-dot" style="background:${currentUser.color}"></div>
+    <span>${currentUser.icon} ${currentUser.label}</span>
+    <span class="role-tag">· ${currentUser.label}</span>`;
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+function initApp(){
+  loadState();
+  buildNav();
+  updateTopbar();
+  goTo('dashboard');
+  // Update passwords from state
+  if(S.passwords){
+    Object.entries(S.passwords).forEach(([r,pw])=>{ if(ROLES[r]) ROLES[r].pw=pw; });
+  }
+  // Simulate phase badge update
+  setInterval(()=>{
+    const count=1+Math.floor(Math.random()*2);
+    const el=document.getElementById('online-users');
+    if(el) el.textContent=count+' usuário'+(count>1?'s':'')+' online';
+  },15000);
+}
+
+// Default date for reunião
+document.getElementById('r-data').valueAsDate=new Date();
+</script>
+</body>
+</html>
